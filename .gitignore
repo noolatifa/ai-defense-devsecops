@@ -1,0 +1,65 @@
+# ==========================================
+# PYTHON & VIRTUAL ENVIRONMENT
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ==========================================
+# SENSITIVE DATA & ENVIRONMENT VARIABLES
+# (CRITICAL: Never commit API keys or secrets)
+# ==========================================
+.env
+.env.local
+.env.production
+*.key
+*.pem
+
+# ==========================================
+# TERRAFORM
+# (Never commit state files, they contain secrets and infrastructure state)
+# ==========================================
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ==========================================
+# LOCALSTACK & DOCKER
+# (Ignore local persistence data, keep docker-compose.yml tracked)
+# ==========================================
+.localstack/
+
+# ==========================================
+# IDE & EDITOR
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ==========================================
+# OS GENERATED FILES
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# LOGS & TEST REPORTS
+# ==========================================
+*.log
+reports/
+test_results/
