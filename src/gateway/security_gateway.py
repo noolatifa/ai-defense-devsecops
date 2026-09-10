@@ -2,11 +2,17 @@
 
 import json
 from typing import Dict, Any
+import os
+from groq import Groq
 
 class SecurityGateway:
     def __init__(self):
         self.allowed_email_domains = ["internal-corp.com"]
-        self.suspicious_keywords = ["hacker", "evil", "stolen", "exfil", "override"]
+        self._groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        self._guard_model = "meta-llama/llama-prompt-guard-2-86m"
+
+
+
 
     def intercept_tool_call(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
         print(f"\n[GATEWAY] Intercepting tool call: {tool_name}")
@@ -28,11 +34,13 @@ class SecurityGateway:
             print(f"[GATEWAY] BLOCKED: Destination '{to_address}' not in allowlist.")
             return {"status": "blocked", "reason": "Unauthorized email destination"}
 
-        full_text = f"{subject} {body}"
-        for keyword in self.suspicious_keywords:
-            if keyword in full_text:
-                print(f"[GATEWAY] BLOCKED: Suspicious keyword '{keyword}' detected.")
-                return {"status": "blocked", "reason": f"Suspicious content: {keyword}"}
-
+        result = self._groq_client.chat.completions.create(
+            model=self._guard_model,
+            messages=[{"role": "user", "content": f"{subject}\n{body}"[:2000]}]
+        )
+        label = result.choices[0].message.content.strip().upper()
+        if "MALICIOUS" in label or "INJECTION" in label:
+            print(f"[GATEWAY] BLOCKED: Content flagged by classifier ({label}).")
+            return {"status": "blocked", "reason": f"Suspicious content (classifier: {label})"}
         print("[GATEWAY] Email validation passed.")
         return {"status": "allowed", "message": "Email approved"}
