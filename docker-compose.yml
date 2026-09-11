@@ -5,11 +5,39 @@ services:
     container_name: aegis-localstack
     ports:
       - "4566:4566"
-      - "4510-4559:4510-4559"
+      - "4510-4559:4510-4559" #ports pour les services externes
     environment:
-      - SERVICES=s3,lambda,iam,apigateway,cloudwatch
+      - SERVICES=s3,lambda,iam,apigateway,cloudwatch,logs
       - DEBUG=1
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "./.localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+  aegis-agent:
+    image: aegis-ai:latest
+    container_name: aegis-agent
+    env_file:
+      - .env
+    environment: 
+      - ENVIRONMENT=dev
+      - OLLAMA_HOST=http://host.docker.internal:11434 # Pour parler à Ollama sur my own machine host
+    depends_on:
+      - localstack
+    volumes:
+      - ./src:/app/src
+      - ./.env:/app/.env
+    
+    networks:
+      - aegis-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+
+    # by default with this command on lance les test FOR NOW! might be changed en --interactive after some code updates (app)
+    command: python -m src.agent.vulnerable_agent
+
+networks:
+  aegis-network:
+    driver: bridge

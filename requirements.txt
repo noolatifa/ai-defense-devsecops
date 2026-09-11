@@ -1,9 +1,22 @@
+# Core AI Framework
 langgraph
+langchain-groq
+langchain-ollama
+langchain-core
+
+# LLM APIs
 groq
+python-dotenv
+
+# Security & PII Detection
+presidio-analyzer
+presidio-anonymizer
+
+# HTTP & Cloud
+requests
+boto3
+
+# Web Framework 
 fastapi
 uvicorn
 pydantic
-boto3
-presidio-analyzer
-presidio-anonymizer
-requests

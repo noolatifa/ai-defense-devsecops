@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+.env
+.localstack/
+terraform/.terraform/
+terraform/lambda/
+*.md
+.vscode/
