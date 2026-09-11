@@ -6,6 +6,7 @@ from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import SystemMessage
 from langchain_core.tools import tool
 from src.gateway.guardrails import Guardrails  
+from langchain_ollama import ChatOllama
 load_dotenv()
 
 guardrails = Guardrails()  # [GUARDRAILS] Initialize guardrails instance
@@ -19,10 +20,14 @@ from src.gateway.security_gateway import SecurityGateway  # [GATEWAY] New import
 print("[DIAGNOSTIC] Script started.")
 api_key = os.getenv("GROQ_API_KEY")
 
-llm = ChatGroq(
-    model="qwen/qwen3.8-27b",
-    temperature=.1,
-    groq_api_key=api_key
+# llm = ChatGroq(
+#     model="qwen/qwen3.8-27b",
+#     temperature=.1,
+#     groq_api_key=api_key
+# )
+llm = ChatOllama(
+    model="llama3.1",
+    temperature=0.7  # Température plus élevée pour qu'il suive les instructions de la docstring
 )
 
 gateway = SecurityGateway()  # [GATEWAY] Initialize gateway instance
