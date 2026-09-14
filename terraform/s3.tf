@@ -1,14 +1,17 @@
 # SECURE S3 bucket for security logs
-
+#1- creation du bucket to store security logs
+#2-block every public access
+#3- content encryption at rest with aes
 
 
 #bucket creation  (espace de stockage)
-ressource "aws_s3_bucket" "security_logs" {
-    bucket = "aegis-ai-security-logs_local"
+resource "aws_s3_bucket" "security_logs" {
+    bucket = "aegis-ai-security-logs-local"
+    force_destroy = true
 
     tags = {
         Project = "AEGIS-AI"
-        Envirronment = "Dev"
+        Environment = "Dev"
         Purpose = "SecurityAuditLogs"
     }
 }
@@ -17,9 +20,8 @@ ressource "aws_s3_bucket" "security_logs" {
 
 # SECUTIYY !! Bloquer every public access
 
-ressource = "aws_s3_bucket_public_access_block" "security_logs_block" {
-    bucket = aws_s3_bucket.security_logs.skip_requesting_account_id
-
+resource "aws_s3_bucket_public_access_block" "security_logs_block" {
+    bucket = aws_s3_bucket.security_logs.id
     block_public_acls = true
     block_public_policy = true
     ignore_public_acls = true
