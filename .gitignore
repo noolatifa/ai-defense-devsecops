@@ -63,3 +63,9 @@ desktop.ini
 *.log
 reports/
 test_results/
+
+
+#personal docs
+vpc.md
+.TERRAFORM.md
+.terraform.lock.hcl

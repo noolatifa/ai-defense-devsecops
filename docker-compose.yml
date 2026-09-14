@@ -7,7 +7,7 @@ services:
       - "4566:4566"
       - "4510-4559:4510-4559" #ports pour les services externes
     environment:
-      - SERVICES=s3,lambda,iam,apigateway,cloudwatch,logs
+      - SERVICES=s3,lambda,iam,apigateway,cloudwatch,logs,ecr,ecs,ec2
       - DEBUG=1
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
