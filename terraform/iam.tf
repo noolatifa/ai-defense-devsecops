@@ -76,3 +76,16 @@ resource "aws_iam_role_policy" "attacher_mes_permissions" {
   role = aws_iam_role.my_ECS_badge.id
   policy = data.aws_iam_policy_document.my_permissions.json
 }
+
+
+#NEW ROLE (EXECUTION ROLE) pour que ecs peut faire un pull img
+resource "aws_iam_role" "ecs_execution_role" {
+  name               = "aegis-ecs-execution-role"
+  assume_role_policy = data.aws_iam_policy_document.my_trust_policy.json
+}
+
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
