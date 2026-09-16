@@ -85,9 +85,7 @@ jobs:
 
 
       - name: Trivy Container Scanner
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        uses: aquasecurity/trivy-action@master
-        with:
+        uses: aquasecurity/trivy-action@master 
           image-ref: '${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest'
           format: 'table'
           exit-code: '1' 
