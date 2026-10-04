@@ -56,7 +56,7 @@ jobs:
 
   # JOB 2 : secure build, container scan & aws push
 
-   build-scan-and-push:
+  build-scan-and-push:
     name: Secure Docker Build, Trivy Container Scan & AWS ECR Push
     runs-on: ubuntu-latest
     needs: iac-and-static-scan    # if sast or iac scan fails we BLOCKKKKK
