@@ -26,11 +26,15 @@ LABEL description="Zero-Trust Security Gateway for AI Agents"
 
 WORKDIR /app
 
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 # [SECURITY] Create non-root user
 RUN useradd --create-home --shell /bin/bash --uid 1000 aegisuser
 
 # Copy installed Python packages from builder
 COPY --from=builder /install /usr/local
+RUN pip uninstall -y setuptools
+
 
 # Copy application code
 COPY --chown=aegisuser:aegisuser src/ ./src/
