@@ -8,6 +8,9 @@ on:
   pull_request: 
     branches : ["main"]
 
+permissions:
+  contents: read
+
 
 env: 
   AWS_REGION : us-east-1
@@ -18,6 +21,10 @@ jobs:
   iac-and-static-scan:
     name: Infrastructure (IaC) & code security 
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      
     steps: 
       - name: Checkout code 
         uses: actions/checkout@v4
@@ -60,43 +67,62 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: set up docker buildx   
+      - name: set up docker buildx
         uses: docker/setup-buildx-action@v3      #docker buildx est une version amelioree de docker, build rapide, parralele des couches, multi architecture (amd, arm, etc) et moderne!
 
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} 
-          aws-region: ${{ env.AWS_REGION }}
-
-
-
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
+      # 1. BUILD : pas besoin d'AWS, nom local
+      # --load met l'image dans Docker local pour que Trivy la trouve
       - name: Build Docker Image
-        env: 
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest .
+          docker build --load -t ${{ env.ECR_REPOSITORY }}:${{ github.sha }} .
 
-
+      # 2. SCAN de l'image locale : pas besoin d'AWS
       - name: Trivy Container Scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest'
+          image-ref: '${{ env.ECR_REPOSITORY }}:${{ github.sha }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
 
 
-      - name: Push to Amazon ECR 
-        env: 
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest
 
+
+
+
+
+
+
+
+
+
+
+
+      # 3. AWS : DESACTIVE we do not have aws acc for now
+      # Pour reactiver :
+      #   a) ajouter les 3 secrets AWS dans GitHub (Settings > Secrets and variables > Actions)
+      #   b) enlever les # devant les 3 etapes ci-dessous
+      # Le "if" fait que seul le code merge sur main touche AWS, jamais une PR
+      #
+      # - name: configure aws credentials
+      #   if: github.event_name == 'push'
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+      #     aws-region: ${{ env.AWS_REGION }}
+      #
+      # - name: Log in to Amazon ECR
+      #   if: github.event_name == 'push'
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+      #
+      # - name: Tag and push to Amazon ECR
+      #   if: github.event_name == 'push'
+      #   env:
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #   run: |
+      #     docker tag ${{ env.ECR_REPOSITORY }}:${{ github.sha }} $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+      #     docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ github.sha }}

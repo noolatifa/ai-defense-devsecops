@@ -14,7 +14,6 @@ resource "aws_subnet" "public_subnet" {
   vpc_id                  = aws_vpc.aegis_vpc.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true
 
   tags = {
     Name = "aegis-public-subnet"
@@ -128,10 +127,11 @@ resource "aws_security_group" "aegis_ecs_sg" {
 
 
   #ALLOW EGRESS
+  #trivy:ignore:AWS-0104 Groq API has no fixed IPs; egress limited to TCP 443. Prod: egress proxy / AWS Network Firewall with domain allowlist
   egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"  #all protocolsss
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
