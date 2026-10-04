@@ -4,7 +4,7 @@
 
 resource "aws_ecr_repository" "aegis_repo" {
     name = "aegis-ai-agent"
-    image_tag_mutability = "MUTABLE" 
+    image_tag_mutability = "IMMUTABLE" 
     force_delete = true 
 
 
