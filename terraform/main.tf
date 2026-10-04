@@ -27,7 +27,7 @@ provider "aws" {
     ecr        = "http://localhost:4566"
     ecs        = "http://localhost:4566"
     ec2        = "http://localhost:4566" #ec2 is always required for ecs ( meme avec fargate!!)
-
+    kms        = "http://localhost:4566"
   }
 }
 
